@@ -6,6 +6,11 @@
     display: block;
   }
 
+  .overlay {
+    position: fixed;
+    inset: 0;
+  }
+
   .calendar {
     position: absolute;
     left: 0;
@@ -51,6 +56,10 @@
           text-align: center;
           padding: 8px;
           width: calc(100% / 7);
+
+          &.selected {
+            background-color: darkcyan;
+          }
 
           &:hover {
             cursor: pointer;

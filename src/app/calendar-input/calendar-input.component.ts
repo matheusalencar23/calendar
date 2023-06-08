@@ -1,5 +1,5 @@
 import { formatDate } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, ElementRef, HostListener, ViewChild } from '@angular/core';
 
 @Component({
   selector: 'app-calendar-input',
@@ -12,9 +12,11 @@ export class CalendarInputComponent {
   currentYear!: number;
   weeks!: Array<Array<Date | null>>;
   opened: boolean = false;
-  selectedDate: string = '';
+  selectedDate?: Date;
+  displayedDate: string = '';
+  isRange: boolean = false;
 
-  constructor() {
+  constructor(private elRef: ElementRef) {
     this.currentDate = new Date();
     this.currentMonth = this.currentDate.getMonth();
     this.currentYear = this.currentDate.getFullYear();
@@ -60,11 +62,13 @@ export class CalendarInputComponent {
     }
 
     this.weeks.push(currentWeek);
-    console.log(this.weeks);
   }
 
   selectDate(date: Date | null): void {
-    console.log(date);
-    if (date) this.selectedDate = formatDate(date, 'dd/MM/yyyy', 'pt-BR');
+    if (date) {
+      this.selectedDate = date;
+      this.displayedDate = formatDate(date, 'dd/MM/yyyy', 'pt-Br');
+    }
+    this.opened = false;
   }
 }

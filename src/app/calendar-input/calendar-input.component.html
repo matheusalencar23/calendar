@@ -6,6 +6,7 @@
   mask="d0/M0/0000"
   (focus)="opened = true"
   [(ngModel)]="displayedDate"
+  (ngModelChange)="changeValue($event)"
   [dropSpecialCharacters]="false"
   [leadZeroDateTime]="true"
 />
@@ -31,14 +32,21 @@
   </div>
   <div class="days">
     <div *ngFor="let week of weeks" class="days-row">
-      <div
-        *ngFor="let day of week"
-        class="day"
-        (click)="selectDate(day)"
-        [class.selected]="day === selectedDate"
-      >
-        {{ day ? day.getDate() : "" }}
-      </div>
+      <ng-container *ngFor="let day of week">
+        <div
+          class="day"
+          [class.has-day]="day"
+          [class.selected]="
+            day &&
+            day?.getDate() === selectedDate?.getDate() &&
+            day?.getMonth() === selectedDate?.getMonth() &&
+            day?.getFullYear() === selectedDate?.getFullYear()
+          "
+          (click)="day && selectDate(day)"
+        >
+          {{ day ? day.getDate() : "" }}
+        </div>
+      </ng-container>
     </div>
   </div>
 </div>

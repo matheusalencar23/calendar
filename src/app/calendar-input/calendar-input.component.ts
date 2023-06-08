@@ -71,4 +71,18 @@ export class CalendarInputComponent {
     }
     this.opened = false;
   }
+
+  changeValue(event: string): void {
+    if (
+      /^([0-2][0-9]|(3)[0-1])(\/)(((0)[0-9])|((1)[0-2]))(\/)\d{4}$/i.test(event)
+    ) {
+      let [day, month, year] = event.split('/');
+      const date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+      this.selectedDate = date;
+      this.currentDate = this.selectedDate;
+      this.currentYear = parseInt(year);
+      this.currentMonth = parseInt(month) - 1;
+      this.generateCalendar();
+    }
+  }
 }

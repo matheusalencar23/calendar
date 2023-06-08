@@ -1,0 +1,29 @@
+<label>Data</label>
+<input type="text" (focus)="opened = true" [(ngModel)]="selectedDate" />
+
+<div *ngIf="opened" class="calendar">
+  <div class="header">
+    <button (click)="previousMonth()"><</button>
+    <span
+      >{{ currentDate.getDate() }}/{{ currentMonth + 1 }}/{{
+        currentYear
+      }}</span
+    >
+    <button (click)="nextMonth()">></button>
+  </div>
+  <div class="week-days">
+    <div
+      class="week-day"
+      *ngFor="let day of ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sab']"
+    >
+      {{ day }}
+    </div>
+  </div>
+  <div class="days">
+    <div *ngFor="let week of weeks" class="days-row">
+      <div *ngFor="let day of week" class="day" (click)="selectDate(day)">
+        {{ day ? day.getDate() : "" }}
+      </div>
+    </div>
+  </div>
+</div>

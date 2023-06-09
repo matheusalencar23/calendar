@@ -1,5 +1,5 @@
 import { formatDate } from '@angular/common';
-import { Component, ElementRef, HostListener, ViewChild } from '@angular/core';
+import { Component } from '@angular/core';
 
 @Component({
   selector: 'app-calendar-input',
@@ -13,10 +13,11 @@ export class CalendarInputComponent {
   weeks!: Array<Array<Date | null>>;
   opened: boolean = false;
   selectedDate?: Date;
-  displayedDate: string = '';
-  isRange: boolean = false;
+  selectedRangeDate: Date[] = [];
+  displayedValue: string = '';
+  isRange: boolean = true;
 
-  constructor(private elRef: ElementRef) {
+  constructor() {
     this.currentDate = new Date();
     this.currentMonth = this.currentDate.getMonth();
     this.currentYear = this.currentDate.getFullYear();
@@ -65,11 +66,19 @@ export class CalendarInputComponent {
   }
 
   selectDate(date: Date | null): void {
-    if (date) {
-      this.selectedDate = date;
-      this.displayedDate = formatDate(date, 'dd/MM/yyyy', 'pt-Br');
+    if (!this.isRange) {
+      if (date) {
+        this.selectedDate = date;
+        this.displayedValue = formatDate(date, 'dd/MM/yyyy', 'pt-Br');
+      }
+      this.opened = false;
+    } else {
+      if (date) {
+        this.selectedRangeDate[0] = date;
+        this.displayedValue = `${formatDate(date, 'dd/MM/yyyy', 'pt-Br')} - `;
+        console.log(this.selectedRangeDate);
+      }
     }
-    this.opened = false;
   }
 
   changeValue(event: string): void {
@@ -84,5 +93,9 @@ export class CalendarInputComponent {
       this.currentMonth = parseInt(month) - 1;
       this.generateCalendar();
     }
+  }
+
+  hoverDay(date: Date): void {
+    console.log(date);
   }
 }

@@ -1,5 +1,5 @@
 import { formatDate } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 
 @Component({
   selector: 'app-calendar-input',
@@ -15,7 +15,10 @@ export class CalendarInputComponent {
   selectedDate?: Date;
   selectedRangeDate: Date[] = [];
   displayedValue: string = '';
-  isRange: boolean = true;
+  selectFirstDate: boolean = true;
+  temporaryHoveredDate: Date | null = null;
+
+  @Input('range') isRange: boolean = true;
 
   constructor() {
     this.currentDate = new Date();
@@ -65,20 +68,24 @@ export class CalendarInputComponent {
     this.weeks.push(currentWeek);
   }
 
-  selectDate(date: Date | null): void {
+  selectDate(date: Date): void {
     if (!this.isRange) {
-      if (date) {
-        this.selectedDate = date;
-        this.displayedValue = formatDate(date, 'dd/MM/yyyy', 'pt-Br');
-      }
-      this.opened = false;
+      this.selectedDate = date;
+      this.displayedValue = this.formatDate(date);
     } else {
-      if (date) {
+      if (this.selectFirstDate) {
         this.selectedRangeDate[0] = date;
-        this.displayedValue = `${formatDate(date, 'dd/MM/yyyy', 'pt-Br')} - `;
-        console.log(this.selectedRangeDate);
+        this.selectFirstDate = false;
+      } else {
+        this.selectedRangeDate[1] = date;
+        this.selectFirstDate = true;
+        if (this.selectedRangeDate[0] > this.selectedRangeDate[1]) {
+          this.selectedRangeDate = this.selectedRangeDate.reverse();
+        }
       }
+      this.generateDisplayedDateRange();
     }
+    console.log(this.selectedRangeDate[0] > this.selectedRangeDate[1]);
   }
 
   changeValue(event: string): void {
@@ -97,5 +104,48 @@ export class CalendarInputComponent {
 
   hoverDay(date: Date): void {
     console.log(date);
+  }
+
+  isSelected(day: Date | null): boolean {
+    return !!(
+      day &&
+      ((this.selectedDate && this.compareDate(day, this.selectedDate)) ||
+        (this.selectedRangeDate[0] &&
+          this.compareDate(day, this.selectedRangeDate[0])) ||
+        (this.selectedRangeDate[1] &&
+          this.compareDate(day, this.selectedRangeDate[1])))
+    );
+  }
+
+  isSecondarySelection(day: Date | null): boolean {
+    return !!(
+      this.isRange &&
+      day &&
+      this.temporaryHoveredDate &&
+      ((day > this.selectedRangeDate[0] && day < this.temporaryHoveredDate) ||
+        (day < this.selectedRangeDate[0] && day > this.temporaryHoveredDate))
+    );
+  }
+
+  compareDate(date1: Date, date2: Date): boolean {
+    return (
+      date1.getDate() === date2.getDate() &&
+      date1.getMonth() === date2.getMonth() &&
+      date1.getFullYear() === date2.getFullYear()
+    );
+  }
+
+  formatDate(date: Date): string {
+    return formatDate(date, 'dd/MM/yyyy', 'pt-Br');
+  }
+
+  generateDisplayedDateRange(): void {
+    if (this.selectedRangeDate[0]) {
+      const firstDate = this.formatDate(this.selectedRangeDate[0]);
+      const secondaDate = this.selectedRangeDate[1]
+        ? this.formatDate(this.selectedRangeDate[1])
+        : '';
+      this.displayedValue = `${firstDate} - ${secondaDate}`;
+    }
   }
 }

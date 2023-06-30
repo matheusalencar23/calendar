@@ -1,5 +1,5 @@
 <p>Selected: {{ selectedDate }}</p>
-<p>Range: {{ selectedRangeDate | json }}</p>
+<p>Selected Range: {{ selectedRangeDate | json }}</p>
 <p>Displayed: {{ displayedValue }}</p>
 <label>Data</label>
 <input
@@ -37,18 +37,11 @@
         <div
           class="day"
           [class.has-day]="day"
-          [class.selected]="
-            (day &&
-              day?.getDate() === selectedDate?.getDate() &&
-                day?.getMonth() === selectedDate?.getMonth() &&
-                day?.getFullYear() === selectedDate?.getFullYear()) ||
-            (selectedRangeDate[0] &&
-              day?.getDate() === selectedRangeDate[0].getDate() &&
-              day?.getMonth() === selectedRangeDate[0].getMonth() &&
-              day?.getFullYear() === selectedRangeDate[0].getFullYear())
-          "
+          [class.selected]="isSelected(day)"
+          [class.secondary-bg]="isSecondarySelection(day)"
           (click)="day && selectDate(day)"
-          (mouseenter)="day && isRange && hoverDay(day)"
+          (mouseenter)="temporaryHoveredDate = day"
+          (mouseleave)="temporaryHoveredDate = null"
         >
           {{ day ? day.getDate() : "" }}
         </div>

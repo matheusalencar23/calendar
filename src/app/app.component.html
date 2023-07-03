@@ -1,9 +1,11 @@
 <div style="padding: 20px">
   <p>Range</p>
-  <app-calendar-input [range]="true" />
+  <app-calendar-input [range]="true" [(ngModel)]="rangeDate" />
 </div>
+<p>{{ rangeDate[0] }}{{ rangeDate[1] ? " - " : "" }}{{ rangeDate[1] }}</p>
 
 <div style="padding: 20px">
   <p>Date</p>
-  <app-calendar-input [range]="false" />
+  <app-calendar-input [range]="false" [(ngModel)]="date" />
 </div>
+<p>{{ date }}</p>

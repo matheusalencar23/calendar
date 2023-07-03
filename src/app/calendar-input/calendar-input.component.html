@@ -1,15 +1,13 @@
-<p>Selected: {{ selectedDate }}</p>
-<p>Selected Range: {{ selectedRangeDate | json }}</p>
-<p>Displayed: {{ displayedValue }}</p>
 <label>Data</label>
 <input
   type="text"
-  [mask]="!isRange ? 'd0/M0/0000' : ''"
-  (focus)="opened = true"
+  [mask]="!isRange ? 'd0/M0/0000' : 'd0/M0/0000 - d0/M0/0000'"
+  (focus)="onFocus()"
   [(ngModel)]="displayedValue"
   (ngModelChange)="changeValue($event)"
   [dropSpecialCharacters]="false"
   [leadZeroDateTime]="true"
+  (blur)="onBlur()"
 />
 
 <div *ngIf="opened" class="overlay" (click)="opened = false"></div>

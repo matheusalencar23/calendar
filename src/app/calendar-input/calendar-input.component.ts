@@ -1,12 +1,32 @@
 import { formatDate } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  Output,
+  forwardRef,
+} from '@angular/core';
+import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 @Component({
   selector: 'app-calendar-input',
   templateUrl: './calendar-input.component.html',
   styleUrls: ['./calendar-input.component.scss'],
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => CalendarInputComponent),
+      multi: true,
+    },
+  ],
 })
-export class CalendarInputComponent {
+export class CalendarInputComponent implements ControlValueAccessor {
+  protected _value: any = '';
+  protected _touched: boolean = false;
+  protected _disabled: boolean = false;
+  protected _onChange: any = () => {};
+  protected _onTouch: any = () => {};
+
   currentDate!: Date;
   currentMonth!: number;
   currentYear!: number;
@@ -19,12 +39,48 @@ export class CalendarInputComponent {
   temporaryHoveredDate: Date | null = null;
 
   @Input('range') isRange: boolean = true;
+  @Output() blur = new EventEmitter<void>();
+  @Output() focus = new EventEmitter<void>();
 
   constructor() {
     this.currentDate = new Date();
     this.currentMonth = this.currentDate.getMonth();
     this.currentYear = this.currentDate.getFullYear();
     this.generateCalendar();
+  }
+
+  writeValue(value: any): void {
+    console.log(value, typeof value);
+    if (!this.isRange) this.selectedDate = value;
+    else {
+      this.selectedRangeDate = value;
+    }
+    this._value = value;
+  }
+
+  registerOnChange(fn: any): void {
+    this._onChange = fn;
+  }
+
+  registerOnTouched(fn: any): void {
+    this._onTouch = fn;
+  }
+
+  setDisabledState?(isDisabled: boolean): void {
+    this._disabled = isDisabled;
+  }
+
+  onBlur(): void {
+    if (!this._touched) {
+      this._onTouch();
+      this._touched = true;
+    }
+    this.blur.emit();
+  }
+
+  onFocus(): void {
+    this.opened = true;
+    this.focus.emit();
   }
 
   nextMonth(): void {
@@ -72,9 +128,11 @@ export class CalendarInputComponent {
     if (!this.isRange) {
       this.selectedDate = date;
       this.displayedValue = this.formatDate(date);
+      this.opened = false;
+      this._onChange(this.selectedDate);
     } else {
       if (this.selectFirstDate) {
-        this.selectedRangeDate[0] = date;
+        this.selectedRangeDate = [date];
         this.selectFirstDate = false;
       } else {
         this.selectedRangeDate[1] = date;
@@ -82,10 +140,14 @@ export class CalendarInputComponent {
         if (this.selectedRangeDate[0] > this.selectedRangeDate[1]) {
           this.selectedRangeDate = this.selectedRangeDate.reverse();
         }
+
+        this.opened = false;
       }
+      console.log('onchange', this.selectedRangeDate);
+
+      this._onChange(this.selectedRangeDate);
       this.generateDisplayedDateRange();
     }
-    console.log(this.selectedRangeDate[0] > this.selectedRangeDate[1]);
   }
 
   changeValue(event: string): void {
@@ -121,6 +183,7 @@ export class CalendarInputComponent {
     return !!(
       this.isRange &&
       day &&
+      !this.selectedRangeDate[1] &&
       this.temporaryHoveredDate &&
       ((day > this.selectedRangeDate[0] && day < this.temporaryHoveredDate) ||
         (day < this.selectedRangeDate[0] && day > this.temporaryHoveredDate))
